@@ -9,18 +9,13 @@
   [frame]
   (.setLocationRelativeTo frame nil))
 
-(defn -main
-  [& args]
-  (s/invoke-later
-    (doto (s/frame :title "cs162p4"
-                   :content "Welcome to cs162p4!"
-                   :on-close :exit
-                   :size [300 :by 300])
-      center!
-      s/show!)))
+
 
 (def file-csv (csv/read-csv (slurp "./resources/testScores.txt")))
 (def colwidth 5)
+(def new-line (. System getProperty "line.separator"))
+
+(defn average [coll] (/ (apply + coll) (count coll)))
 
 (defn col-space [x] (format (str "%-" colwidth "s") x))
 
@@ -54,11 +49,20 @@
          (col-space the-average)
          (col-space "")
          (col-space the-grade)
-         "\n")))
-
-(defn average [coll] (/ (apply + coll) (count coll)))
+         new-line)))
 
 (defn report-grades [col]
   (str (grades-header (count (first col)))
-       "\n"
+       new-line
        (apply str (map #(str (col-space %1) (grades-row %2)) (range) col))))
+
+(defn -main
+  [& args]
+  (s/invoke-later
+    (doto (s/frame :title "cs162p4"
+                   ;;:content "Welcome to cs162p4!"
+                   :content (report-grades (rest file-csv))
+                   :on-close :exit
+                   :size [300 :by 300])
+      center!
+      s/show!)))
